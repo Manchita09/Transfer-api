@@ -1,0 +1,702 @@
+﻿<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Dashboard | Transferencias</title>
+
+<style>
+:root {
+  color-scheme: dark;
+  font-family: Inter, Arial, sans-serif;
+  --bg: #040a15;
+  --panel: rgba(7, 16, 31, 0.88);
+  --panel-border: rgba(124, 140, 255, 0.12);
+  --text: #e6edf8;
+  --text-muted: #94a3b8;
+  --accent: #5b7dff;
+  --accent-2: #42d4ff;
+  --success: #34d399;
+  --danger: #fb7185;
+  --card-shadow: 0 25px 60px rgba(0, 7, 24, 0.45);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: radial-gradient(circle at top left, rgba(96, 165, 250, 0.16), transparent 22%),
+              radial-gradient(circle at bottom right, rgba(59, 130, 246, 0.12), transparent 20%),
+              linear-gradient(180deg, #020612 0%, #050a17 100%);
+  color: var(--text);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(59,130,246,0.08), transparent 40%, rgba(59,130,246,0.04));
+  pointer-events: none;
+}
+
+.container {
+  width: min(1260px, calc(100% - 32px));
+  margin: 24px auto 40px;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.page-title {
+  display: grid;
+  gap: 10px;
+}
+
+.page-title .eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.24em;
+  color: var(--accent);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.page-title h1 {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.05;
+}
+
+.page-title .subtitle {
+  margin: 0;
+  color: var(--text-muted);
+  max-width: 620px;
+  line-height: 1.7;
+}
+
+.header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.header-actions button {
+  padding: 14px 20px;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.header-actions button:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+  margin-bottom: 28px;
+}
+
+.stat-card {
+  background: rgba(10, 18, 34, 0.95);
+  border: 1px solid var(--panel-border);
+  border-radius: 20px;
+  padding: 22px;
+  box-shadow: var(--card-shadow);
+}
+
+.stat-card span {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  margin-bottom: 12px;
+}
+
+.stat-card strong {
+  display: block;
+  font-size: 2rem;
+  color: white;
+}
+
+.stat-card.accent {
+  background: linear-gradient(180deg, rgba(91,125,255,0.2), rgba(10,18,34,0.96));
+  border-color: rgba(91,125,255,0.22);
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 2.1fr 1fr;
+  gap: 22px;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 24px;
+  box-shadow: var(--card-shadow);
+  padding: 22px;
+}
+
+.panel h2,
+.panel h3 {
+  margin: 0 0 18px;
+  font-size: 1.12rem;
+}
+
+.panel-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.controls-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.controls-row select,
+.controls-row input {
+  min-width: 180px;
+}
+
+.form-box {
+  display: none;
+  background: rgba(14, 23, 43, 0.95);
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  padding: 20px;
+  border-radius: 20px;
+  margin-bottom: 18px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.form-grid input,
+.form-grid select {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(148,163,184,0.16);
+  background: rgba(15, 23, 42, 0.92);
+  color: var(--text);
+}
+
+.form-grid button {
+  grid-column: span 1;
+  width: fit-content;
+  padding: 14px 18px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  border: none;
+  border-radius: 14px;
+  color: white;
+  cursor: pointer;
+}
+
+button,
+input,
+select {
+  font-family: inherit;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+  min-width: 100%;
+}
+
+th, td {
+  padding: 14px 16px;
+  text-align: left;
+  border-bottom: 1px solid rgba(148,163,184,0.12);
+}
+
+th {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  letter-spacing: 0.01em;
+}
+
+tr {
+  transition: background 0.2s ease;
+}
+
+tr:hover {
+  background: rgba(148,163,184,0.08);
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.players-table td:last-child,
+.transfer-table td:last-child {
+  text-align: right;
+}
+
+.action-button {
+  padding: 10px 12px;
+  border: none;
+  border-radius: 12px;
+  background: rgba(59, 130, 246, 0.16);
+  color: var(--text);
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.action-button:hover {
+  background: rgba(59, 130, 246, 0.28);
+  transform: translateY(-1px);
+}
+
+.side-panel {
+  display: grid;
+  gap: 20px;
+}
+
+.summary-item {
+  display: grid;
+  gap: 12px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.summary-item li {
+  background: rgba(14, 23, 43, 0.96);
+  border: 1px solid rgba(148,163,184,0.12);
+  border-radius: 18px;
+  padding: 14px 16px;
+}
+
+.summary-item strong {
+  display: block;
+  color: white;
+}
+
+#selectedText,
+#teamBudget,
+#error {
+  margin: 12px 0 0;
+  color: var(--text-muted);
+}
+
+#error {
+  min-height: 22px;
+  font-weight: 700;
+}
+
+ul#topPlayers {
+  padding-left: 18px;
+  margin: 0;
+}
+
+ul#topPlayers li {
+  margin-bottom: 10px;
+  color: var(--text);
+}
+
+@media (max-width: 980px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  .dashboard-header,
+  .header-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .controls-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+  <div class="dashboard-header">
+    <div class="page-title">
+      <span class="eyebrow">Panel de transferencias</span>
+      <h1>Sistema de Jugadores</h1>
+      <p class="subtitle">Administra jugadores, equipos y transacciones</p>
+    </div>
+    <div class="header-actions">
+      <button onclick="loadPlayers()">Cargar datos</button>
+      <button onclick="toggleForm()">Agregar jugador</button>
+    </div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <span>Total jugadores</span>
+      <strong id="playersCount">-</strong>
+    </div>
+    <div class="stat-card">
+      <span>Equipos disponibles</span>
+      <strong id="teamsCount">-</strong>
+    </div>
+    <div class="stat-card">
+      <span>Transferencias</span>
+      <strong id="transfersCount">-</strong>
+    </div>
+    <div class="stat-card accent">
+      <span>Presupuesto actual</span>
+      <strong id="currentBudget">-</strong>
+    </div>
+  </div>
+
+  <div class="dashboard-grid">
+    <section class="panel">
+      <div class="controls-row">
+        <div class="panel-actions">
+          <button onclick="resetTransfers()">Reiniciar Temporada</button>
+          <button onclick="toggleForm()">Crear Jugador</button>
+        </div>
+        <select id="filterTeam" onchange="filterByTeam()">
+          <option value="">Todos los equipos</option>
+        </select>
+      </div>
+
+      <div id="formBox" class="form-box">
+        <div class="form-grid">
+          <input id="name" placeholder="Nombre" />
+          <input id="position" placeholder="Posición" />
+          <input id="value" type="number" placeholder="Valor" />
+          <select id="teamCreate">
+            <option value="">Seleccionar equipo</option>
+          </select>
+          <button onclick="createPlayer()">Guardar jugador</button>
+        </div>
+      </div>
+
+      <div id="transferBox" class="form-box">
+        <div class="form-grid">
+          <select id="teamSelect" onchange="updateBudget()">
+            <option value="">Seleccionar equipo</option>
+          </select>
+          <input id="priceInput" type="number" placeholder="Precio de transferencia" />
+          <button onclick="transferSelected()">Confirmar transferencia</button>
+          <button type="button" onclick="closeTransferForm()" style="background: rgba(251,113,133,0.18); color: #fb7185;">Cancelar</button>
+        </div>
+      </div>
+
+      <p id="selectedText">Ningún jugador seleccionado</p>
+      <p id="teamBudget">Presupuesto: -</p>
+      <p id="error"></p>
+
+      <div class="panel" style="padding: 0; background: transparent; border:none; box-shadow:none;">
+        <table class="players-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Posición</th>
+              <th>Valor</th>
+              <th>Equipo</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="playersTable"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <aside class="side-panel">
+      <section class="panel">
+        <h2>🏆 Ranking</h2>
+        <table class="transfer-table">
+          <tbody id="rankingTable"></tbody>
+        </table>
+      </section>
+
+      <section class="panel">
+        <h2>🔁 Transferencias recientes</h2>
+        <table class="transfer-table">
+          <tbody id="transferTable"></tbody>
+        </table>
+      </section>
+
+      <section class="panel">
+        <h2>💎 Top jugadores</h2>
+        <ul id="topPlayers"></ul>
+      </section>
+    </aside>
+  </div>
+</div>
+
+<script>
+let selectedPlayer = null;
+let allPlayers = [];
+let teamsCache = [];
+let lastTransferCount = 0;
+
+window.onload = () => {
+  loadTeams();
+  loadPlayers();
+  loadRanking();
+  loadTransfers();
+  loadTopPlayers();
+};
+
+function showMessage(text, color = "#34d399") {
+  const msg = document.getElementById("error");
+  msg.style.color = color;
+  msg.textContent = text;
+  setTimeout(() => { if (msg.textContent === text) msg.textContent = ""; }, 3000);
+}
+
+function updateStats() {
+  document.getElementById("playersCount").innerText = allPlayers.length;
+  document.getElementById("teamsCount").innerText = teamsCache.length;
+  document.getElementById("transfersCount").innerText = lastTransferCount;
+  const totalBudget = teamsCache.reduce((sum, t) => sum + Number(t.budget ?? t.Budget ?? 0), 0);
+  document.getElementById("currentBudget").innerText = `$${totalBudget.toLocaleString()}`;
+}
+
+function updateBudget() {
+  const selectedValue = document.getElementById("teamSelect").value;
+  if (!selectedValue) {
+    document.getElementById("teamBudget").innerText = "Presupuesto: -";
+    return;
+  }
+  const team = teamsCache.find(t => String(t.id) === selectedValue || String(t.ID) === selectedValue);
+  const budget = team ? (team.budget ?? team.Budget ?? 0) : 0;
+  document.getElementById("teamBudget").innerText = team ? `Presupuesto: $${budget}` : "Presupuesto: -";
+}
+
+function transferPlayer(id) {
+  selectedPlayer = id;
+  const row = document.querySelector(`#playersTable tr[data-player-id="${id}"]`);
+  document.querySelectorAll("#playersTable tr").forEach(r => r.style.background = "");
+  if (row) row.style.background = "rgba(59, 130, 246, 0.16)";
+  document.getElementById("selectedText").innerText = row ? `Jugador: ${row.children[1].textContent}` : `Jugador: ${id}`;
+  document.getElementById("transferBox").style.display = "block";
+  updateBudget();
+}
+
+function closeTransferForm() {
+  document.getElementById("transferBox").style.display = "none";
+  document.getElementById("priceInput").value = "";
+}
+
+function toggleForm() {
+  const f = document.getElementById("formBox");
+  f.style.display = f.style.display === "block" ? "none" : "block";
+}
+
+async function loadPlayers() {
+  const res = await fetch("http://localhost:8082/players");
+  const data = await res.json();
+  allPlayers = data;
+  renderPlayers(data);
+  updateStats();
+}
+
+function renderPlayers(players) {
+  const table = document.getElementById("playersTable");
+  table.innerHTML = "";
+  players.forEach(p => {
+    table.innerHTML += `
+      <tr data-player-id="${p.id}" onclick="selectPlayer(${p.id}, this)">
+        <td>${p.id}</td>
+        <td>${p.name}</td>
+        <td>${p.position}</td>
+        <td>$${Number(p.value).toLocaleString()}</td>
+        <td>${p.team}</td>
+        <td>
+          <button class="action-button" onclick="event.stopPropagation(); transferPlayer(${p.id})">🔁</button>
+          <button class="action-button" onclick="event.stopPropagation(); deletePlayer(${p.id})">🗑️</button>
+        </td>
+      </tr>
+    `;
+  });
+}
+
+function filterByTeam() {
+  const team = document.getElementById("filterTeam").value;
+  if (!team) {
+    renderPlayers(allPlayers);
+    return;
+  }
+  const filtered = allPlayers.filter(p => p.team === team);
+  renderPlayers(filtered);
+}
+
+function selectPlayer(id, row) {
+  selectedPlayer = id;
+  document.querySelectorAll("#playersTable tr").forEach(r => r.style.background = "");
+  row.style.background = "rgba(59, 130, 246, 0.16)";
+  document.getElementById("selectedText").innerText = "Jugador: " + row.children[1].textContent;
+}
+
+async function createPlayer() {
+  const name = document.getElementById("name").value;
+  const position = document.getElementById("position").value;
+  const value = document.getElementById("value").value;
+  const team = document.getElementById("teamCreate").value;
+  if (!name || !position || !value || !team) {
+    alert("Completa todos los campos");
+    return;
+  }
+  const res = await fetch("http://localhost:8082/players", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ name, position, value: Number(value), team_id: Number(team) })
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    alert("Error: " + err);
+    return;
+  }
+  alert("Jugador creado correctamente");
+  document.getElementById("name").value = "";
+  document.getElementById("position").value = "";
+  document.getElementById("value").value = "";
+  document.getElementById("teamCreate").value = "";
+  loadPlayers();
+}
+
+async function deletePlayer(id) {
+  if (!confirm("¿Eliminar?")) return;
+  const res = await fetch(`http://localhost:8082/players/${id}`, { method: "DELETE" });
+  if (!res.ok) {
+    showMessage("Error al eliminar", "#fb7185");
+    return;
+  }
+  showMessage("Jugador eliminado", "#34d399");
+  loadPlayers();
+}
+
+async function transferSelected() {
+  if (!selectedPlayer) {
+    showMessage("Selecciona jugador", "#fb7185");
+    return;
+  }
+  const team = document.getElementById("teamSelect").value;
+  const price = document.getElementById("priceInput").value;
+  if (!team || !price) {
+    showMessage("Completa datos", "#fb7185");
+    return;
+  }
+  const res = await fetch("http://localhost:8082/transfer", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ player_id: selectedPlayer, to_team_id: Number(team), price: Number(price) })
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    showMessage(err, "#fb7185");
+    return;
+  }
+  showMessage("Transferencia realizada", "#34d399");
+  closeTransferForm();
+  await loadTeams();
+  loadPlayers();
+  loadRanking();
+  loadTransfers();
+  updateBudget();
+}
+
+async function loadTeams() {
+  const res = await fetch("http://localhost:8082/teams");
+  const data = await res.json();
+  teamsCache = data;
+  const selectTransfer = document.getElementById("teamSelect");
+  const selectCreate = document.getElementById("teamCreate");
+  const filter = document.getElementById("filterTeam");
+  selectTransfer.innerHTML = '<option value="">Seleccionar equipo</option>';
+  selectCreate.innerHTML = '<option value="">Seleccionar equipo</option>';
+  filter.innerHTML = '<option value="">Todos los equipos</option>';
+  const unique = [];
+  data.forEach(t => {
+    if (!unique.find(e => e.id === t.id)) unique.push(t);
+  });
+  unique.forEach(t => {
+    selectTransfer.innerHTML += `<option value="${t.id}">${t.name}</option>`;
+    selectCreate.innerHTML += `<option value="${t.id}">${t.name}</option>`;
+    filter.innerHTML += `<option value="${t.name}">${t.name}</option>`;
+  });
+  updateStats();
+}
+
+async function loadRanking() {
+  const res = await fetch("http://localhost:8082/ranking");
+  const data = await res.json();
+  const table = document.getElementById("rankingTable");
+  table.innerHTML = "";
+  data.forEach((t, i) => {
+    table.innerHTML += `<tr><td>${i+1}.</td><td>${t.name}</td><td>$${Number(t.budget).toLocaleString()}</td></tr>`;
+  });
+}
+
+async function loadTransfers() {
+  const res = await fetch("http://localhost:8082/transfers");
+  const data = await res.json();
+  const table = document.getElementById("transferTable");
+  table.innerHTML = "";
+  lastTransferCount = data.length;
+  data.forEach(t => {
+    table.innerHTML += `<tr><td>${t.player}</td><td>${t.from_team}</td><td>${t.to_team}</td><td>$${Number(t.price).toLocaleString()}</td></tr>`;
+  });
+  updateStats();
+}
+
+async function loadTopPlayers() {
+  const res = await fetch("http://localhost:8082/top-players");
+  const data = await res.json();
+  const list = document.getElementById("topPlayers");
+  list.innerHTML = "";
+  data.forEach(p => {
+    list.innerHTML += `<li><strong>${p.name}</strong> — $${Number(p.value).toLocaleString()}</li>`;
+  });
+}
+
+async function resetTransfers() {
+  const res = await fetch("http://localhost:8082/reset-transfers", { method: "DELETE" });
+  if (!res.ok) {
+    showMessage("Error al reiniciar historial", "#fb7185");
+    return;
+  }
+  showMessage("Historial reiniciado", "#34d399");
+  loadTransfers();
+}
+</script>
+</body>
+</html>
