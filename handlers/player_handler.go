@@ -6,7 +6,8 @@ import (
 	"log"
 	"net/http"
 	"strconv"
-	"transfer-api/models"
+
+	"github.com/Manchita09/transfer-api/handlers/models"
 
 	"github.com/gorilla/mux"
 )

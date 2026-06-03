@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"transfer-api/models"
+	"github.com/Manchita09/transfer-api/handlers/models"
 )
 
 func TransferPlayer(w http.ResponseWriter, r *http.Request) {

@@ -3,16 +3,20 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 	_ "github.com/jackc/pgx/v5/stdlib"
 
-	"transfer-api/handlers"
+	"github.com/Manchita09/transfer-api/handlers"
 )
 
 func main() {
 
-	connStr := "host=127.0.0.1 port=5432 user=postgres password=1234 dbname=TransferMarketDB sslmode=disable"
+	connStr := os.Getenv("DATABASE_URL")
+	if connStr == "" {
+		connStr = "host=127.0.0.1 port=5432 user=postgres password=1234 dbname=TransferMarketDB sslmode=disable"
+	}
 
 	handlers.InitDB(connStr)
 
@@ -65,9 +69,14 @@ func main() {
 		http.ServeFile(w, r, "./static/dashboard.html")
 	})
 
-	log.Println("Servidor corriendo en http://localhost:8082")
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8082"
+	}
 
-	log.Fatal(http.ListenAndServe(":8082", router))
+	log.Printf("Servidor corriendo en http://localhost:%s", port)
+
+	log.Fatal(http.ListenAndServe(":"+port, router))
 }
 
 func seedDefaultUser() {

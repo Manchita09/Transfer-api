@@ -5,7 +5,7 @@ import (
 	"log"
 	"net/http"
 
-	"transfer-api/models"
+	"github.com/Manchita09/transfer-api/handlers/models"
 )
 
 func Login(w http.ResponseWriter, r *http.Request) {
