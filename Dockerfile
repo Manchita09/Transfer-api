@@ -1,4 +1,5 @@
-FROM golang:1.20-alpine AS builder
+FROM golang:1.25-alpine AS builder
+
 WORKDIR /app
 
 COPY go.mod go.sum ./
@@ -9,13 +10,16 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -o server .
 
 FROM alpine:latest
+
 RUN apk --no-cache add ca-certificates
+
 WORKDIR /root/
 
 COPY --from=builder /app/server .
 COPY --from=builder /app/static ./static
 
 EXPOSE 8082
+
 ENV PORT=8082
 
 CMD ["./server"]
